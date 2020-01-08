@@ -36,3 +36,7 @@ function debounce(inner, ms = 0) {
     return new Promise(r => resolves.push(r));
   };
 }
+
+function getByAriaLabel(value){
+  return document.querySelector("[aria-label='" + value + "']");
+}

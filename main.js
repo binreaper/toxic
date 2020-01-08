@@ -19,9 +19,13 @@
     function main() {
         const searchInput = document.querySelector('#search-input');
         searchInput.addEventListener('keyup', debouncedSearchHandler);
+        togglePlayPauseButtonView('PAUSE');
+        initNavList();
         readStorage();
         renderPlaylist();
         initPlayerControls();
+        initAudioEvents();
+        initIcons();
     }
 
     function addToPlaylist(item) {
@@ -88,6 +92,7 @@
             listItem.innerHTML = item.title;
             listItem.classList.add('m-sm');
             listItem.classList.add('list-item');
+            listItem.classList.add('widget-card');
             listItem.addEventListener('click', () => {
                 addToPlaylist(item);
             });
@@ -107,18 +112,19 @@
             const p = document.createElement('p');
 
             p.innerText = item.title;
+            p.classList.add('list-item');
             p.addEventListener('click', () => {
                 playSource(item, index);
             });
 
             button.innerText = 'Remove';
             button.addEventListener('click', () => removeFromPlaylist(index));
-            button.classList.add('button-black');
-            button.classList.add('button-clear');
+            button.classList.add('danger');
 
             columnOne.appendChild(p);
             columnTwo.appendChild(button);
 
+            listItem.classList.add('playlist-item');
             listItem.appendChild(columnOne);
             listItem.appendChild(columnTwo);
 
@@ -129,6 +135,7 @@
     function playSource(item, index) {
         audioRef.src = APIURL + '/api/play?audioId=' + item.videoId;
         updatePlayer(item, index);
+        updateProgress(0);
         playAudio();
     }
 
@@ -174,7 +181,7 @@
             'play': playAudio,
             'pause': pauseAudio,
             'next': playNext,
-            'previous':playPrevious
+            'previous': playPrevious
         };
 
         const playerControlsContainer = document.querySelector('#player-controls');
@@ -229,5 +236,91 @@
         }
     }
 
+    function updateProgress(percentage) {
+        const playerProgressContainer = document.querySelector('#player-progress');
+        const playerProgressBar = document.querySelector(".progress-bar");
+        playerProgressBar.style.width = percentage + '%';
+    }
+
+    function initAudioEvents() {
+        audioRef.addEventListener('timeupdate', function() {
+            const percentage = (audioRef.currentTime / audioRef.duration) * 100;
+            updateProgress(percentage);
+        });
+
+        audioRef.addEventListener('playing', function() {
+            togglePlayPauseButtonView('PLAY');
+        });
+
+        audioRef.addEventListener('pause', function() {
+            togglePlayPauseButtonView('PAUSE');
+        });
+
+    }
+
+    function initNavList() {
+        const navItemContainer = document.querySelector('.nav-list');
+        const navItemsNodeList = navItemContainer.querySelectorAll('.nav-item');
+        hideAllNavSections();
+        navItemsNodeList.forEach(navItem => {
+            navItem.addEventListener('click', function() {
+                const activateSection = document.querySelector('#' + navItem.attributes["data-toggle"].value);
+                if (activateSection.classList.contains('active')) {
+                    activateSection.classList.remove('active');
+                    navItem.classList.remove('active');
+                } else {
+                    hideAllNavSections();
+                    activateSection.classList.add('active');
+                    navItem.classList.add('active');
+                }
+            });
+        });
+
+
+        setTab('playlist-section');
+    }
+
+    function hideAllNavSections() {
+        const navItemContainer = document.querySelector('.nav-list');
+        const navItemsNodeList = navItemContainer.querySelectorAll('.nav-item');
+        navItemsNodeList.forEach(navItem => {
+            navItemsNodeList.forEach(item => item.classList.remove('active'));
+            const hideSection = document.querySelector('#' + navItem.attributes["data-toggle"].value);
+            hideSection.classList.remove('active');
+        });
+    }
+
+    function setTab(sectionRefString) {
+        const navElement = document.querySelector("[data-toggle='" + sectionRefString + "']");
+        navElement.click();
+    }
+
+    function initIcons() {
+        feather.replace();
+    }
+
+    function togglePlayPauseButtonView(state) {
+        const toggleStateMapping = createFixedStateObject(['PAUSE', 'PLAY']);
+
+        const playButton = getByAriaLabel('play');
+        const pauseButton = getByAriaLabel('pause');
+
+        playButton.style.display = 'none';
+        pauseButton.style.display = 'none';
+
+        if (toggleStateMapping.isValid(state)) {
+            if (state === toggleStateMapping.PLAY) {
+                pauseButton.style.display = 'inline-block';
+            }
+
+            if (state === toggleStateMapping.PAUSE) {
+                playButton.style.display = 'inline-block';
+            }
+        }
+
+    }
+
+
     main();
-})();
+
+})()
