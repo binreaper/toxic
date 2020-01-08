@@ -275,9 +275,6 @@
                 }
             });
         });
-
-
-        setTab('playlist-section');
     }
 
     function hideAllNavSections() {
