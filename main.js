@@ -3,12 +3,12 @@
     const APIURL = 'https://orion-server.herokuapp.com';
 
 
-    const validRepeatModes = createFixedStateObject(['ALL', 'CURRENT', 'NONE']);
+    const validRepeatModes = createFixedStateObject(['ALL', 'NONE']);
     const validAudioStates = createFixedStateObject(['PLAYING', 'PAUSED']);
 
     const debouncedSearchHandler = debounce(searchHandler, 250);
 
-    let repeatMode = validRepeatModes.NONE;
+    let repeatMode = validRepeatModes.ALL;
     let audioState = validAudioStates.PAUSED;
     let playlist = [];
     let searchList = [];
@@ -23,9 +23,11 @@
         initNavList();
         readStorage();
         renderPlaylist();
+        renderRepeatToggle();
         initPlayerControls();
         initAudioEvents();
         initIcons();
+
     }
 
     function addToPlaylist(item) {
@@ -154,17 +156,28 @@
     }
 
     function changeRepeatMode() {
-        const repeatFlow = ['ALL', 'CURRENT', 'NONE'];
+        const repeatFlow = ['ALL', 'NONE'];
 
         let nextStateIndex = repeatFlow.indexOf(repeatMode) + 1;
         if (nextStateIndex >= repeatFlow.length) {
             nextStateIndex = 0;
         }
+
         const nextState = repeatFlow[nextStateIndex];
 
         if (validRepeatModes.isValid(nextState)) {
             repeatMode = nextState;
+            updateRepeatToggle();
         }
+    }
+
+    function updateRepeatToggle(){
+      const repeatToggleIconContainer = getByAriaLabel('repeat');
+      if(repeatMode === validRepeatModes.ALL){
+        repeatToggleIconContainer.classList.add('active');
+      }else{
+        repeatToggleIconContainer.classList.remove('active');
+      }
     }
 
     function httpErrorHandler(err) {
@@ -181,7 +194,9 @@
             'play': playAudio,
             'pause': pauseAudio,
             'next': playNext,
-            'previous': playPrevious
+            'previous': playPrevious,
+            'repeat':changeRepeatMode,
+            'shuffle':changeShuffleMode
         };
 
         const playerControlsContainer = document.querySelector('#player-controls');
@@ -223,17 +238,51 @@
     }
 
     function playNext() {
-        const nextTrack = playlist[currentTrackIndex + 1];
+        let nextTrack,nextTrackIndex;
+
+        if(repeatMode === validRepeatModes.ALL){
+          nextTrackIndex = currentTrackIndex + 1;
+          if(nextTrackIndex>=playlist.length){
+            nextTrackIndex = 0;
+          }else{
+            nextTrackIndex = currentTrackIndex + 1;
+          }
+          nextTrack = playlist[nextTrackIndex];
+        }else if(repeatMode === validRepeatModes.NONE){
+          nextTrackIndex = currentTrackIndex + 1;
+          nextTrack = playlist[nextTrackIndex];
+        }else if(repeatMode === validRepeatModes.CURRENT){
+          nextTrackIndex = currentTrackIndex;
+          nextTrack = playlist[nextTrackIndex];
+        }
+
         if (nextTrack) {
-            playSource(nextTrack, currentTrackIndex + 1);
+            playSource(nextTrack, nextTrackIndex);
         }
     }
 
     function playPrevious() {
-        const prevTrack = playlist[currentTrackIndex - 1];
-        if (prevTrack) {
-            playSource(prevTrack, currentTrackIndex - 1);
+      let previousTrack,previousTrackIndex;
+
+      if(repeatMode === validRepeatModes.ALL){
+        previousTrackIndex = currentTrackIndex - 1;
+        if(previousTrackIndex<0){
+          previousTrackIndex = playlist.length-1;
+        }else{
+          previousTrackIndex = currentTrackIndex - 1;
         }
+        previousTrack = playlist[previousTrackIndex];
+      }else if(repeatMode === validRepeatModes.NONE){
+        previousTrackIndex = currentTrackIndex - 1;
+        previousTrack = playlist[previousTrackIndex];
+      }else if(repeatMode === validRepeatModes.CURRENT){
+        previousTrackIndex = currentTrackIndex;
+        previousTrack = playlist[previousTrackIndex];
+      }
+
+      if (previousTrack) {
+          playSource(previousTrack, previousTrackIndex);
+      }
     }
 
     function updateProgress(percentage) {
@@ -255,6 +304,11 @@
         audioRef.addEventListener('pause', function() {
             togglePlayPauseButtonView('PAUSE');
         });
+
+        audioRef.addEventListener('ended',function(){
+playNext();
+        });
+
 
     }
 
@@ -315,6 +369,16 @@
             }
         }
 
+    }
+
+
+    function renderRepeatToggle(){
+      updateRepeatToggle();
+    }
+
+
+    function changeShuffleMode(){
+      return;
     }
 
 
