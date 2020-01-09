@@ -47,6 +47,7 @@ body{
   outline:none;
   display:inline-block;
   padding:6px 8px;
+  cursor: pointer;
 
 }
 
