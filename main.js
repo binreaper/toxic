@@ -1,4 +1,4 @@
-(function() {
+(function () {
     const audioRef = document.querySelector('audio');
     const APIURL = 'https://orion-server.herokuapp.com';
 
@@ -171,13 +171,13 @@
         }
     }
 
-    function updateRepeatToggle(){
-      const repeatToggleIconContainer = getByAriaLabel('repeat');
-      if(repeatMode === validRepeatModes.ALL){
-        repeatToggleIconContainer.classList.add('active');
-      }else{
-        repeatToggleIconContainer.classList.remove('active');
-      }
+    function updateRepeatToggle() {
+        const repeatToggleIconContainer = getByAriaLabel('repeat');
+        if (repeatMode === validRepeatModes.ALL) {
+            repeatToggleIconContainer.classList.add('active');
+        } else {
+            repeatToggleIconContainer.classList.remove('active');
+        }
     }
 
     function httpErrorHandler(err) {
@@ -195,15 +195,15 @@
             'pause': pauseAudio,
             'next': playNext,
             'previous': playPrevious,
-            'repeat':changeRepeatMode,
-            'shuffle':changeShuffleMode
+            'repeat': changeRepeatMode,
+            'shuffle': changeShuffleMode
         };
 
         const playerControlsContainer = document.querySelector('#player-controls');
         const buttons = playerControlsContainer.querySelectorAll('button');
 
         buttons.forEach(button => {
-            button.addEventListener('click', function(e) {
+            button.addEventListener('click', function (e) {
                 buttonMappings[button.attributes['aria-label'].value]()
             });
         });
@@ -238,22 +238,22 @@
     }
 
     function playNext() {
-        let nextTrack,nextTrackIndex;
+        let nextTrack, nextTrackIndex;
 
-        if(repeatMode === validRepeatModes.ALL){
-          nextTrackIndex = currentTrackIndex + 1;
-          if(nextTrackIndex>=playlist.length){
-            nextTrackIndex = 0;
-          }else{
+        if (repeatMode === validRepeatModes.ALL) {
             nextTrackIndex = currentTrackIndex + 1;
-          }
-          nextTrack = playlist[nextTrackIndex];
-        }else if(repeatMode === validRepeatModes.NONE){
-          nextTrackIndex = currentTrackIndex + 1;
-          nextTrack = playlist[nextTrackIndex];
-        }else if(repeatMode === validRepeatModes.CURRENT){
-          nextTrackIndex = currentTrackIndex;
-          nextTrack = playlist[nextTrackIndex];
+            if (nextTrackIndex >= playlist.length) {
+                nextTrackIndex = 0;
+            } else {
+                nextTrackIndex = currentTrackIndex + 1;
+            }
+            nextTrack = playlist[nextTrackIndex];
+        } else if (repeatMode === validRepeatModes.NONE) {
+            nextTrackIndex = currentTrackIndex + 1;
+            nextTrack = playlist[nextTrackIndex];
+        } else if (repeatMode === validRepeatModes.CURRENT) {
+            nextTrackIndex = currentTrackIndex;
+            nextTrack = playlist[nextTrackIndex];
         }
 
         if (nextTrack) {
@@ -262,27 +262,27 @@
     }
 
     function playPrevious() {
-      let previousTrack,previousTrackIndex;
+        let previousTrack, previousTrackIndex;
 
-      if(repeatMode === validRepeatModes.ALL){
-        previousTrackIndex = currentTrackIndex - 1;
-        if(previousTrackIndex<0){
-          previousTrackIndex = playlist.length-1;
-        }else{
-          previousTrackIndex = currentTrackIndex - 1;
+        if (repeatMode === validRepeatModes.ALL) {
+            previousTrackIndex = currentTrackIndex - 1;
+            if (previousTrackIndex < 0) {
+                previousTrackIndex = playlist.length - 1;
+            } else {
+                previousTrackIndex = currentTrackIndex - 1;
+            }
+            previousTrack = playlist[previousTrackIndex];
+        } else if (repeatMode === validRepeatModes.NONE) {
+            previousTrackIndex = currentTrackIndex - 1;
+            previousTrack = playlist[previousTrackIndex];
+        } else if (repeatMode === validRepeatModes.CURRENT) {
+            previousTrackIndex = currentTrackIndex;
+            previousTrack = playlist[previousTrackIndex];
         }
-        previousTrack = playlist[previousTrackIndex];
-      }else if(repeatMode === validRepeatModes.NONE){
-        previousTrackIndex = currentTrackIndex - 1;
-        previousTrack = playlist[previousTrackIndex];
-      }else if(repeatMode === validRepeatModes.CURRENT){
-        previousTrackIndex = currentTrackIndex;
-        previousTrack = playlist[previousTrackIndex];
-      }
 
-      if (previousTrack) {
-          playSource(previousTrack, previousTrackIndex);
-      }
+        if (previousTrack) {
+            playSource(previousTrack, previousTrackIndex);
+        }
     }
 
     function updateProgress(percentage) {
@@ -292,21 +292,21 @@
     }
 
     function initAudioEvents() {
-        audioRef.addEventListener('timeupdate', function() {
+        audioRef.addEventListener('timeupdate', function () {
             const percentage = (audioRef.currentTime / audioRef.duration) * 100;
             updateProgress(percentage);
         });
 
-        audioRef.addEventListener('playing', function() {
+        audioRef.addEventListener('playing', function () {
             togglePlayPauseButtonView('PLAY');
         });
 
-        audioRef.addEventListener('pause', function() {
+        audioRef.addEventListener('pause', function () {
             togglePlayPauseButtonView('PAUSE');
         });
 
-        audioRef.addEventListener('ended',function(){
-playNext();
+        audioRef.addEventListener('ended', function () {
+            playNext();
         });
 
 
@@ -317,7 +317,7 @@ playNext();
         const navItemsNodeList = navItemContainer.querySelectorAll('.nav-item');
         hideAllNavSections();
         navItemsNodeList.forEach(navItem => {
-            navItem.addEventListener('click', function() {
+            navItem.addEventListener('click', function () {
                 const activateSection = document.querySelector('#' + navItem.attributes["data-toggle"].value);
                 if (activateSection.classList.contains('active')) {
                     activateSection.classList.remove('active');
@@ -372,13 +372,13 @@ playNext();
     }
 
 
-    function renderRepeatToggle(){
-      updateRepeatToggle();
+    function renderRepeatToggle() {
+        updateRepeatToggle();
     }
 
 
-    function changeShuffleMode(){
-      return;
+    function changeShuffleMode() {
+        return;
     }
 
 
